@@ -1,0 +1,3 @@
+pip install ultralytics		# Обученные модели анализа изображений
+pip install opencv-python	# Видео покадрово
+pip install pillow			# Интерфейс
