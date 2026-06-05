@@ -1,30 +1,63 @@
+import threading
+
 import cv2
+
 
 class VideoSource:
     def __init__(self):
         self.cap = None
+        self.lock = threading.RLock()
 
     def open(self, source):
-        self.cap = cv2.VideoCapture(source)
+        with self.lock:
+            self.cap = cv2.VideoCapture(source)
 
     def read(self):
-        if self.cap:
-            return self.cap.read()
+        with self.lock:
+            if self.cap:
+                return self.cap.read()
         return False, None
 
     def release(self):
-        if self.cap:
-            self.cap.release()
+        with self.lock:
+            if self.cap:
+                self.cap.release()
 
     def get_size(self):
-        if self.cap:
-            return (
-                int(self.cap.get(3)),   # cv2.CAP_PROP_FRAME_WIDTH
-                int(self.cap.get(4))    # cv2.CAP_PROP_FRAME_HEIGHT
-            )
+        with self.lock:
+            if self.cap:
+                return (
+                    int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
+                    int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
+                )
+        return 0, 0
+
+    def get_frame_count(self):
+        with self.lock:
+            if self.cap:
+                return int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        return 0
+
+    def get_position(self):
+        with self.lock:
+            if self.cap:
+                return int(self.cap.get(cv2.CAP_PROP_POS_FRAMES))
+        return 0
 
     def read_first_frame(self):
-        if self.cap:
-            self.cap.set(1, 0)  # cv2.CAP_PROP_POS_FRAMES = 1
-            return self.cap.read()
+        return self.read_at(0)
+
+    def read_at(self, frame_index):
+        with self.lock:
+            if self.cap:
+                self.cap.set(cv2.CAP_PROP_POS_FRAMES, max(0, int(frame_index)))
+                return self.cap.read()
         return False, None
+
+    def seek(self, frame_index):
+        with self.lock:
+            if self.cap:
+                self.cap.set(cv2.CAP_PROP_POS_FRAMES, max(0, int(frame_index)))
+
+    def rewind(self):
+        self.seek(0)
