@@ -12,7 +12,7 @@ NormalizedBox = Tuple[float, float, float, float]
 
 class PassengerStatus(str, Enum):
     PAID = "paid"
-    SUSPECT = "suspect"
+    NO_PAY = "no_pay"
 
 
 @dataclass
@@ -43,7 +43,7 @@ class PaymentEvent:
 @dataclass
 class PassengerState:
     track_id: int
-    status: PassengerStatus = PassengerStatus.SUSPECT
+    status: PassengerStatus = PassengerStatus.NO_PAY
     frames_seen: int = 0
     frames_with_hand_near_terminal: int = 0
     frames_in_cabin_without_payment: int = 0
@@ -448,7 +448,7 @@ class PaymentAnalyzer:
     def _status_color(status: PassengerStatus):
         if status == PassengerStatus.PAID:
             return (70, 220, 70)
-        if status == PassengerStatus.SUSPECT:
+        if status == PassengerStatus.NO_PAY:
             return (40, 40, 240)
         return (255, 220, 80)
 

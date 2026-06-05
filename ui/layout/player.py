@@ -1,6 +1,5 @@
 import tkinter as tk
 
-
 class VideoPlayer(tk.Frame):
     def __init__(self, parent):
         super().__init__(parent, bg="#2b2b2b")
